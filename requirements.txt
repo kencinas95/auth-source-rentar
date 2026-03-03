@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+pymongo
+mongodb-odm
+pydantic
+bcrypt
+PyJWT
+jinja2
+requests
+python-multipart
+email-validator
+cryptography
+apscheduler
+Authlib~=1.6.9
+httpx
+Starlette
+itsdangerous

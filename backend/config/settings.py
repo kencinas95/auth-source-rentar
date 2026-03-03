@@ -1,3 +1,4 @@
+import os
 import urllib.parse as up
 from datetime import timedelta
 from pathlib import Path
@@ -5,22 +6,25 @@ from pathlib import Path
 
 # --- application settings ---
 APPLICATION_ROOT = Path(__file__).parent.parent.parent
-APPLICATION_NAME = "rentar-auth-service"
+APPLICATION_NAME = "auth-source"
 APPLICATION_HOST = "0.0.0.0"
 APPLICATION_PORT = 8989
 
 # --- server settings ---
-SERVER_BASE_URL = f"http://localhost:{APPLICATION_PORT}"
+SERVER_BASE_URL = os.environ["SERVER_INSTANCE_BASE_URL"]
 
 # --- mongo settings ---
-MDB_USERNAME = "ra_auth_app"
-MDB_PASSWORD = "billgates21!"
-MDB_DATABASE_NAME = "ra_auth"
-MDB_HOSTNAME = "localhost"
-MDB_PORT = 27017
+MDB_USERNAME = os.environ.get("MDB_USERNAME", "ra_auth_app")
+MDB_PASSWORD = os.environ.get("MDB_PASSWORD", "billgates21!")
+MDB_DATABASE_NAME = os.environ.get("MDB_DATABASE_NAME", "ra_auth")
+MDB_HOSTNAME = os.environ.get("MDB_HOSTNAME", "localhost")
+MDB_PORT = int(os.environ.get("MDB_PORT", 27017))
+
 MDB_CONNECTION_URL = (f"mongodb://{MDB_USERNAME}:{up.quote(MDB_PASSWORD, safe='')}"
                       f"@{MDB_HOSTNAME}:{MDB_PORT}/{MDB_DATABASE_NAME}"
                       "?authSource=admin")
+
+MDB_CONNECTION_URL = os.environ["MDB_CONNECTION_URL"] or MDB_CONNECTION_URL
 
 MDB_MAX_BATCH_SIZE = 3000
 
@@ -37,21 +41,21 @@ AUTH_SESSION_EXPIRATION_LIMIT = timedelta(hours=8)
 AUTH_SESSION_STORAGE_AUDIT_TIME_LIMIT = timedelta(days=90)
 
 # --- smtp settings ---
-EMAIL_SERVICE_SERVER_ADDRESS = ("localhost", 9025)
+EMAIL_SERVICE_SERVER_ADDRESS = (os.environ["SMTP_SERVER_ADDRESS_HOST"], int(os.environ["SMTP_SERVER_ADDRESS_PORT"]))
 
 EMAIL_SERVICE_USE_TLS = False  # only in dev / testing
 
 EMAIL_SERVICE_USE_AUTH = False  # only in dev / testing
 
-EMAIL_SERVICE_ACCOUNT = "noreply@rentar.net"
+EMAIL_SERVICE_ACCOUNT = os.environ["SMTP_SERVER_ACCOUNT_USER"]
 
-EMAIL_SERVICE_ACCOUNT_PASSWORD = "ra_smtp_F321MMnOrYMa031$/=="
+EMAIL_SERVICE_ACCOUNT_PASSWORD = os.environ["SMTP_SERVER_ACCOUNT_PASSWORD"]
 
 # --- data ---
 DATA_ROOT = APPLICATION_ROOT / "data"
 
 # --- external links ---
-MAIN_APPLICATION_URL = "http://127.0.0.1:8080"
+MAIN_APPLICATION_URL = os.environ["RENTAR_BASE_URL"]
 
 # --- logging settings ---
 LOGGING = {"version": 1, "disable_existing_loggers": False, "formatters": {"default": {
@@ -66,12 +70,12 @@ LOGGING = {"version": 1, "disable_existing_loggers": False, "formatters": {"defa
 OIDC_REGISTRY = [
     {
         "name": "rentar",
-        "return_to": "http://127.0.0.1:8080/auth/callback",
+        "return_to": os.environ["RENTAR_BASE_URL"] + "/auth/callback",
         "providers": [
             {
                 "name": "google",
-                "client_id": "",
-                "client_secret": "",
+                "client_id": os.environ["OIDC_REGISTRY_RENTAR_CLIENT_ID"],
+                "client_secret": os.environ["OIDC_REGISTRY_RENTAR_CLIENT_SECRET"],
                 "server_metadata_url": "https://accounts.google.com/.well-known/openid-configuration",
                 "client_kwargs": {
                     "scope": "openid profile email"
