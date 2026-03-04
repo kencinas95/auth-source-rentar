@@ -41,10 +41,9 @@ def login(request: UserLoginRequest):
     :raises HTTPException: 401 Unauthorized for invalid credentials
     """
     try:
-        sid, expires_at = sessions.authenticate(
-            request.email, request.password)
+        sid, expires_at = sessions.authenticate(request.email, request.password)
 
-        return {"sid": sid, "expires_at": expires_at.timestamp()}
+        return {"sid": sid, "expires_at": expires_at}
 
     except UserNotFoundError:
         raise HTTPException(status_code=401)
